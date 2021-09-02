@@ -6,9 +6,8 @@ const asyncHandler = require('../middleware/async')
 // @route     GET /api/v1/notes
 // @access    public
 exports.getNotes = asyncHandler(async (req, res, next) => {
-    const notes = await Note.find();
 
-    res.status(200).json({ success: true, data: notes });
+    res.status(200).json(res.advancedResults);
   });
 
 // @desc      create new notes

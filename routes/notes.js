@@ -7,11 +7,15 @@ const {
     deleteNote
 } = require('../controllers/notes')
 
+const Note = require('../models/Note')
+
+const advancedResults = require('../middleware/advancedResults')
+
 const router = express.Router();
 
 router
   .route('/')
-  .get(getNotes)
+  .get(advancedResults(Note), getNotes)
   .post(createNote);  
 
 router
