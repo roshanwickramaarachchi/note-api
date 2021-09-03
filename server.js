@@ -6,26 +6,28 @@ const morgan = require('morgan');
 const errorHandler = require('./middleware/error');
 
 //load env var
-dotenv.config({path: './config/config.env'})
+dotenv.config({ path: './config/config.env' })
 
 // Connect to database
 connectDB();
 
 // Route files
-const notes = require('./routes/notes');
+const notes = require('./routes/notes')
+const auth = require('./routes/auth')
 
-const app= express()
+const app = express()
 
 // Body parser
-app.use(express.json({ limit: '15mb' })); 
+app.use(express.json({ limit: '15mb' }))
 
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+  app.use(morgan('dev'))
 }
 
 // Mount routers
 app.use('/api/v1/notes', notes)
+app.use('/api/v1/auth', auth)
 
 // my-error hadle
 app.use(errorHandler);
@@ -41,7 +43,7 @@ const server = app.listen(
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
-    console.log(`Error: ${err.message}`.red);
-    // Close server & exit process
-    server.close(() => process.exit(1));
-  });
+  console.log(`Error: ${err.message}`.red)
+  // Close server & exit process
+  server.close(() => process.exit(1));
+})
