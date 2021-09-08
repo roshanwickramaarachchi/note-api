@@ -73,13 +73,16 @@ app.use(errorHandler);
 //   ),
 // );
 
+const PORT = process.env.PORT || 3000
 //production
-var server = app.listen(process.env.PORT || 3000, function () {
-  var port = server.address().port;
-  console.log("Express is working on port " + port)
-}
-
+const server =app.listen(
+  PORT,
+  '0.0.0.0',
+  function () {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold);
+  }
 );
+
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
