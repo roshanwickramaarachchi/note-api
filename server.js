@@ -64,13 +64,21 @@ app.use('/api/v1/auth', auth)
 // my-error hadle
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000
+// const PORT = process.env.PORT || 3000
 
-const server = app.listen(
-  PORT,
-  console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold,
-  ),
+// const server = app.listen(
+//   PORT,
+//   console.log(
+//     `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold,
+//   ),
+// );
+
+//production
+var server = app.listen(process.env.PORT || 3000, function () {
+  var port = server.address().port;
+  console.log("Express is working on port " + port)
+}
+
 );
 
 // Handle unhandled promise rejections
