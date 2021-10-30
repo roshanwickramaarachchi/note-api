@@ -23,6 +23,11 @@ const UserSchema = new mongoose.Schema({
         minlength: 6,
         select: false, //password is not view in database
     },
+    verified: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     createdAt: {
@@ -70,5 +75,6 @@ UserSchema.methods.getResetPasswordToken = function () {
 
     return resetToken;
 };
+
 
 module.exports = mongoose.model('User', UserSchema)

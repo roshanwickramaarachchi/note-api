@@ -3,6 +3,7 @@ const ErrorResponse = require('../utils/errorResponse')
 const asyncHandler = require('../middleware/async')
 const sendEmail = require('../utils/sendEmail')
 const User = require('../models/User')
+const jwt = require('jsonwebtoken')
 
 // @desc      Register user
 // @route     POST /api/v1/auth/register
@@ -20,6 +21,23 @@ exports.register = asyncHandler(async (req, res, next) => {
 
     // Create token
     const token = user.getSignedJwtToken()
+
+    // Email the user a unique verification link
+    const url = `${req.protocol}://${req.get('host')}/api/v1/auth/verify/${token}`
+    const message = `Click <a href = '${url}'>here</a> to confirm your email and then login.`
+
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: 'Verify Account',
+            message,
+        });
+
+        // res.status(200).json({ success: true, data: 'Email sent' });
+    } catch (err) {
+        console.log(err);
+        return next(new ErrorResponse('Email could not be sent', 500));
+    }
 
     res.status(200).json({ success: true, token })
 });
@@ -42,6 +60,11 @@ exports.login = asyncHandler(async (req, res, next) => {
     if (!user) {
         return next(new ErrorResponse('Invalid credentials', 401))
     }
+
+    // Ensure the account has been verified
+    if(!user.verified){
+        return next(new ErrorResponse('Verify your Account.', 403))        
+   }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
@@ -186,3 +209,71 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     res.status(200).json({ success: true, token })
 });
 
+exports.verify = asyncHandler(async (req, res, next) => {
+    const token = req.params
+    //console.log(token);
+    // Check we have an id
+    if (!token.id) {
+        return next(new ErrorResponse('Missing Token', 422));
+    }
+    // Step 1 -  Verify the token from the URL
+    let payload = null
+
+    payload = jwt.verify(
+        token.id,
+        process.env.JWT_SECRET
+    );
+    //console.log(payload);
+
+    // Step 2 - Find user with matching ID
+    const user = await User.findOne({ id: payload.ID }).exec();
+    if (!user) {
+        return next(new ErrorResponse('User does not  exists', 404));
+    }
+    // Step 3 - Update user verification status to true
+    user.verified = true;
+    await user.save();
+
+
+    res.status(200).json({ success: true })
+
+});
+// exports.verify = async (req, res) => {
+//     const token = req.params
+//     console.log(token.id);
+//     // Check we have an id
+//     if (!token.id) {
+//         return res.status(422).send({ 
+//              message: "Missing Token" 
+//         });
+//     }
+//     // Step 1 -  Verify the token from the URL
+//     let payload = null
+//     try {
+//         payload = jwt.verify(
+//            token.id,
+//            process.env.USER_VERIFICATION_TOKEN_SECRET
+//         );
+//     } catch (err) {
+//         console.log('error first');
+//         //return res.status(500).send(err);        
+//     }
+//     try{
+//         // Step 2 - Find user with matching ID
+//         const user = await User.findOne({ id: payload.ID }).exec();
+//         if (!user) {
+//            return res.status(404).send({ 
+//               message: "User does not  exists" 
+//            });
+//         }
+//         // Step 3 - Update user verification status to true
+//         user.verified = true;
+//         await user.save();
+//         return res.status(200).send({
+//               message: "Account Verified"
+//         });
+//      } catch (err) {
+//         return res.status(500).send(err);
+
+//      }
+// }
