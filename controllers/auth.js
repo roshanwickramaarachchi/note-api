@@ -143,16 +143,17 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     // Get reset token
     const resetToken = user.getResetPasswordToken();
 
-    console.log(resetToken)
+    // console.log(resetToken)
+    // console.log(resetToken.slice(-4))
+    // console.log(resetToken.slice(1, -4))  
 
     await user.save({ validateBeforeSave: false });
 
     // Create reset url
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/resetpassword/${resetToken}`;
+    //const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/resetpassword/${resetToken}`;
 
-    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
-
-    // const message = `You are receiving this email because you (or someone else) has requested the reset of a mobile shop finder app login password. Please enter this cord in application: \n\n ${resetToken}`;
+    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT this values to mobile app: \n\n ${resetToken}`;
+    //const message = `You are receiving this email because you (or someone else) has requested the reset of a password.Please Click to reset password <a href = '${resetUrl}'>here</a> `    
 
     try {
         await sendEmail({
@@ -172,16 +173,17 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Email could not be sent', 500));
     }
 
-    res.status(200).json({
-        success: true,
-        data: user,
-    });
+    // res.status(200).json({
+    //     success: true,
+    //     data: user,
+    // });
 });
 
 // @desc      Reset password
 // @route     PUT /api/v1/auth/resetpassword/:resettoken
 // @access    Public
 exports.resetPassword = asyncHandler(async (req, res, next) => {
+    
     // Get hashed token
     const resetPasswordToken = crypto
         .createHash('sha256')
