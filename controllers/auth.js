@@ -62,9 +62,9 @@ exports.login = asyncHandler(async (req, res, next) => {
     }
 
     // Ensure the account has been verified
-    if(!user.verified){
-        return next(new ErrorResponse('Verify your Account.', 403))        
-   }
+    if (!user.verified) {
+        return next(new ErrorResponse('Verify your Account.', 403))
+    }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
@@ -183,7 +183,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/auth/resetpassword/:resettoken
 // @access    Public
 exports.resetPassword = asyncHandler(async (req, res, next) => {
-    
+
     // Get hashed token
     const resetPasswordToken = crypto
         .createHash('sha256')
@@ -227,7 +227,7 @@ exports.verify = asyncHandler(async (req, res, next) => {
     );
     //console.log(payload);
 
-    // Step 2 - Find user with matching ID
+    //  Find user with matching ID
     const user = await User.findOne({ id: payload.ID }).exec();
     if (!user) {
         return next(new ErrorResponse('User does not  exists', 404));
@@ -236,46 +236,9 @@ exports.verify = asyncHandler(async (req, res, next) => {
     user.verified = true;
     await user.save();
 
+    const message = "your email has verifyied please login with mobile app"
 
-    res.status(200).json({ success: true })
+    //res.status(200).json({ success: true })
+    res.status(200).send(message);
 
 });
-// exports.verify = async (req, res) => {
-//     const token = req.params
-//     console.log(token.id);
-//     // Check we have an id
-//     if (!token.id) {
-//         return res.status(422).send({ 
-//              message: "Missing Token" 
-//         });
-//     }
-//     // Step 1 -  Verify the token from the URL
-//     let payload = null
-//     try {
-//         payload = jwt.verify(
-//            token.id,
-//            process.env.USER_VERIFICATION_TOKEN_SECRET
-//         );
-//     } catch (err) {
-//         console.log('error first');
-//         //return res.status(500).send(err);        
-//     }
-//     try{
-//         // Step 2 - Find user with matching ID
-//         const user = await User.findOne({ id: payload.ID }).exec();
-//         if (!user) {
-//            return res.status(404).send({ 
-//               message: "User does not  exists" 
-//            });
-//         }
-//         // Step 3 - Update user verification status to true
-//         user.verified = true;
-//         await user.save();
-//         return res.status(200).send({
-//               message: "Account Verified"
-//         });
-//      } catch (err) {
-//         return res.status(500).send(err);
-
-//      }
-// }
