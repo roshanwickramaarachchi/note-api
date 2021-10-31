@@ -228,7 +228,7 @@ exports.verify = asyncHandler(async (req, res, next) => {
     //console.log(payload);
 
     //  Find user with matching ID
-    const user = await User.findOne({ id: payload.ID }).exec();
+    const user = await User.findById(payload.id);
     if (!user) {
         return next(new ErrorResponse('User does not  exists', 404));
     }
